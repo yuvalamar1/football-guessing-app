@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './login';
+import Register from './register';
+import Home from './Home';
+import { UserProvider } from './UserContext';
+//import { GoogleFontLoader } from 'react-google-font-loader';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <UserProvider>
+    <Router>
+      <div>
+      {/* <GoogleFontLoader fonts={[{ font: 'Roboto', weights: [400, 700] }]} /> */}
+        <h1>My App</h1>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
+        </Routes>
+      </div>
+    </Router>
+  </UserProvider>
   );
-}
+};
 
 export default App;

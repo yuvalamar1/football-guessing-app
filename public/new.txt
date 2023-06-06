@@ -1,0 +1,158 @@
+// GuessHistory.jsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+export const fetchUserGuesses = async () => {
+  try {
+    const response = await axios.get('http://localhost:3001/api/guessing-history');
+    const userGuessesData = response.data;
+    const userGuessesArray = Array.isArray(userGuessesData)
+      ? userGuessesData
+      : Object.values(userGuessesData);
+    return userGuessesArray;
+  } catch (error) {
+    console.error(error.response);
+    return [];
+  }
+};
+
+const GuessHistory = () => {
+  const [userGuesses, setUserGuesses] = useState([]);
+
+  useEffect(() => {
+    fetchUserGuesses().then((guesses) => setUserGuesses(guesses));
+  }, []);
+
+  return (
+    <>
+      <h3>Your Guesses:</h3>
+      <ul>
+        {userGuesses.map((guess) => (
+          <li key={guess._id}>
+            Game ID: {guess.gameId._id}
+            <br />
+            Home Team: {guess.gameId.homeTeam}
+            <br />
+            Away Team: {guess.gameId.awayTeam}
+            <br />
+            Home Team Score: {guess.homeTeamScore}
+            <br />
+            Away Team Score: {guess.awayTeamScore}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+};
+
+export default GuessHistory;
+
+
+
+//newguess
+import React, { useState, useEffect } from 'react';
+import { fetchUserGuesses } from './GuessHistory';
+import axios from 'axios';
+
+const NewGuess = () => {
+  const [games, setGames] = useState([]);
+  const [selectedGame, setSelectedGame] = useState('');
+  const [homeTeamScore, setHomeTeamScore] = useState('');
+  const [awayTeamScore, setAwayTeamScore] = useState('');
+
+  useEffect(() => {
+    fetchActiveGames();
+  }, []);
+
+  const fetchActiveGames = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/active-games');
+      setGames(response.data);
+    } catch (error) {
+      console.error(error.response);
+    }
+  };
+
+  const handleGameChange = (event) => {
+    setSelectedGame(event.target.value);
+  };
+
+  const handleHomeTeamScoreChange = (event) => {
+    setHomeTeamScore(event.target.value);
+  };
+
+  const handleAwayTeamScoreChange = (event) => {
+    setAwayTeamScore(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:3001/api/make-guess', {
+        gameId: selectedGame,
+        homeTeamScore: homeTeamScore,
+        awayTeamScore: awayTeamScore,
+      });
+
+      // Handle the response as needed
+      console.log(response.data);
+      const guesses = await fetchUserGuesses();
+      //setUserGuesses(guesses);
+    } catch (error) {
+      console.error(error.response);
+    }
+  };
+
+  return (
+    <div>
+      <h3>Create New Guess:</h3>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Select a Game:
+          <select value={selectedGame} onChange={handleGameChange}>
+            <option value="">Select a game</option>
+            {games.map((game) => (
+              <option key={game._id} value={game._id}>
+                {game.homeTeam} vs {game.awayTeam}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+        <label>
+          Home Team Score:
+          <input type="number" value={homeTeamScore} onChange={handleHomeTeamScoreChange} />
+        </label>
+        <br />
+        <label>
+          Away Team Score:
+          <input type="number" value={awayTeamScore} onChange={handleAwayTeamScoreChange} />
+        </label>
+        <br />
+        <button type="submit">Submit Guess</button>
+      </form>
+    </div>
+  );
+};
+
+export default NewGuess;
+
+
+//usercontext
+import React, { createContext, useState } from 'react';
+
+const UserContext = createContext();
+
+const UserProvider = ({ children }) => {
+  const [loggedInUsername, setLoggedInUsername] = useState('');
+  const [loggedInToken, setLoggedInToken] = useState(''); // Add loggedInToken state
+  
+  return (
+    <UserContext.Provider value={{ loggedInUsername, setLoggedInUsername, loggedInToken, setLoggedInToken }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+export { UserContext, UserProvider };
