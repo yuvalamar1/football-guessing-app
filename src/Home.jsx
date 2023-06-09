@@ -3,6 +3,7 @@ import { UserContext } from './UserContext';
 import GuessHistory from './GuessHistory';
 import NewGuess from './NewGuess';
 import EndedGames from './EndedGames';
+import NextMatches from './NextMatches';
 
 const Home = () => {
   const { loggedInUsername, loggedInToken } = useContext(UserContext);
@@ -13,6 +14,7 @@ const Home = () => {
       <GuessHistory />
       <NewGuess />
       <EndedGames />
+      <NextMatches />
     </div>
   );
 };
